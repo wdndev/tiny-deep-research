@@ -8,7 +8,7 @@ sys.path.insert(0, myPath + '/../')
 
 import unittest
 from unittest.mock import patch
-from tiny_deep_research.text_splitter.recursive_text_splitter import RecursiveCharacterTextSplitter
+from tiny_deep_research.text_splitter import RecursiveCharacterTextSplitter
 
 
 def main():
