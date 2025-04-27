@@ -20,7 +20,6 @@ class SearchServiceType(Enum):
 class SearchResponse(TypedDict):
     """Search response type.
     """
-
     data: List[Dict[str, str]]
 
 class SearchServices:
