@@ -7,3 +7,4 @@ from .scraper.base_scraper import BaseScraper, ScrapedContent
 from .scraper.playwright_scraper import PlaywrightScraper
 
 from .search_scraper_mgr import SearchAndScrapeManager
+from .search_services import SearchServiceType, SearchResponse, SearchServices
