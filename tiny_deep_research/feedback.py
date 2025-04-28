@@ -18,6 +18,7 @@ async def generate_feedback(
     :return: A list of generated feedback responses.
     """
     feedback_content = f"Given this research topic: {query}, generate 3-5 follow-up questions to better understand the user's research needs. Return the response as a JSON object with a 'questions' array field."
+    # feedback_content = 
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": feedback_content},

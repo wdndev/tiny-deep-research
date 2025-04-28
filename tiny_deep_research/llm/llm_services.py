@@ -83,20 +83,24 @@ class LLMService:
 
 
 async def main():
-    llm = LLMService(api_key="sk-xxxxxxxxxxxxxxxxxxx")
+    llm = LLMService(api_key="sk-xxxxxxxxxxxxxxxxxxx", base_url="http://100.126.93.122:4321/v1")
     messages = [
         {"role": "system", "content": "You are a helpful assistant"},
         {"role": "user", "content": "你好"},
     ]
 
-    res = await llm.get_response(messages, stream=False)
+    res = await llm.get_response(
+        messages, 
+        stream=False,
+        response_format={"type": "text"}
+    )
     print("No Stream Response: ", res)
 
-    # 流式调用
-    print("Stream Response: ", end="", flush=True)
-    res_stream = await llm.get_response(messages, stream=True)
-    async for content_chunk in res_stream:
-        print(content_chunk, end="", flush=True)
+    # # 流式调用
+    # print("Stream Response: ", end="", flush=True)
+    # res_stream = await llm.get_response(messages, stream=True)
+    # async for content_chunk in res_stream:
+    #     print(content_chunk, end="", flush=True)
 
 
 if __name__ == "__main__":
