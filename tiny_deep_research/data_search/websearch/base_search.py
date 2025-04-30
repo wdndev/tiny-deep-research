@@ -6,11 +6,11 @@ from abc import ABC, abstractmethod
 class SearchResult:
     """搜索结果类
     """
-    title: str
     url: str
-    description: str
-    position: int
-    metadata: Dict[str, Any] = None
+    title: Optional[str] = None
+    position: Optional[int] = None
+    description: Optional[str] = None
+    metadata: Optional[Any] = None
 
 class BaseSearchEngine(ABC):
     """搜索引擎基类

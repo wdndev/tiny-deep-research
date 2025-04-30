@@ -1,6 +1,7 @@
 # websearch/__init__.py
-from .websearch.base_search_engine import SearchResult, BaseSearchEngine
-from .websearch.ddgs_search_engine import DdgsSearchEngine
+from .websearch.base_search import SearchResult, BaseSearchEngine
+from .websearch.ddgs_search import DdgsSearchEngine
+from .websearch.baidu_search import BaiduSearchEngine
 
 # scraper/__init__.py
 from .scraper.base_scraper import BaseScraper, ScrapedContent

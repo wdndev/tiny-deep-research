@@ -2,7 +2,7 @@ import asyncio
 from duckduckgo_search import DDGS
 from typing import List, Optional, Dict, Any
 
-from .base_search_engine import BaseSearchEngine, SearchResult
+from .base_search import BaseSearchEngine, SearchResult
 from tiny_deep_research.utils import logger
 
 class DdgsSearchEngine(BaseSearchEngine):

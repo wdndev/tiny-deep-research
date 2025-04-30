@@ -3,8 +3,8 @@ from typing import Optional, Dict, Union, List
 
 from tiny_deep_research.utils import logger
 
-from .websearch.base_search_engine import SearchResult, BaseSearchEngine
-from .websearch.ddgs_search_engine import DdgsSearchEngine
+from .websearch.base_search import SearchResult, BaseSearchEngine
+from .websearch.ddgs_search import DdgsSearchEngine
 from .scraper.base_scraper import BaseScraper, ScrapedContent
 from .scraper.playwright_scraper import PlaywrightScraper
 
