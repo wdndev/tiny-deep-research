@@ -9,6 +9,7 @@ class ScrapedContent:
     url: str
     html: str
     text: str
+    title: str
     status_code: int
     metadata: Dict[str, Any] = None
 

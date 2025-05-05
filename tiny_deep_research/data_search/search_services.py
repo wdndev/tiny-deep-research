@@ -15,6 +15,7 @@ class SearchServiceType(Enum):
     FIRECRAWL = "firecrawl"
     PLAYWRIGHT_DDGS = "playwright_ddgs"
     PLAYWRIGHT_BING = "playwright_bing"
+    PLAYWRIGHT_BAIDU = "playwright_baidu"
     PLAYWRIGHT_GOOGLE = "playwright_google"
 
 class SearchResponse(TypedDict):
@@ -46,6 +47,7 @@ class SearchServices:
         elif service_type == SearchServiceType.PLAYWRIGHT_DDGS.value:
             self.manager = SearchAndScrapeManager()
             self.firecrawl = None
+            self._initialized = False
         else:
             self.manager = SearchAndScrapeManager()
             self.firecrawl = None

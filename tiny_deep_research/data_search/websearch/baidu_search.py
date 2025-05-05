@@ -34,7 +34,7 @@ class BaiduSearchEngine(BaseSearchEngine):
                             metadata={}
                         )
                     )
-                if isinstance(item, dict):
+                elif isinstance(item, dict):
                     results.append(
                         SearchResult(
                             title=item.get("title", ""),

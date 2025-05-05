@@ -1,10 +1,14 @@
+import re
+from typing import Optional
+
+from readability import Document
+from bs4 import BeautifulSoup
+
 import random
-from typing import Dict, Any, Optional
 from playwright.async_api import async_playwright, Browser, BrowserContext, TimeoutError
 
 from .base_scraper import BaseScraper, ScrapedContent
 from tiny_deep_research.utils import logger
-
 
 class PlaywrightScraper(BaseScraper):
     """ 基于 Playwright 的高级网页爬虫，支持反检测功能
@@ -187,6 +191,66 @@ class PlaywrightScraper(BaseScraper):
             await self.playwright.stop()
         logger.info("Playwright resources cleaned up")
 
+
+    async def _clean_content(self, html: str) -> str:
+        """内容净化核心方法"""
+        # 第一层：使用Readability提取主体
+        doc = Document(html)
+        summary = doc.summary()
+
+        # 第二层：BeautifulSoup深度清理
+        soup = BeautifulSoup(summary, 'lxml')
+        
+        # 移除非内容标签
+        TAGS_TO_REMOVE = ['nav', 'footer', 'aside', 'header', 'form', 
+                        'button', 'iframe', 'noscript', 'style']
+        for tag in soup(TAGS_TO_REMOVE):
+            tag.decompose()
+
+        # 清除广告特征元素（CSS类名正则匹配）
+        AD_PATTERNS = re.compile(r'ad|banner|popup|modal|overlay|promo', re.I)
+        for element in soup.find_all(class_=AD_PATTERNS):
+            element.decompose()
+
+        # 提取优化后的文本
+        text = soup.get_text(separator='\n', strip=True)
+        return re.sub(r'\n{3,}', '\n\n', text).strip()
+
+    async def _browser_side_cleanup(self, page):
+        """浏览器端预清理策略"""
+        # 执行JavaScript移除浮动元素
+        await page.evaluate("""
+            () => {
+                // 移除常见广告选择器
+                const selectors = [
+                    'div[class*="ad"]', 
+                    'iframe[src*="ads"]',
+                    'div[id^="banner"]',
+                    'div[class*="popup"]'
+                ];
+                
+                selectors.forEach(selector => {
+                    document.querySelectorAll(selector).forEach(element => {
+                        element.remove();
+                    });
+                });
+
+                // 隐藏cookie提示
+                const cookieSelectors = [
+                    '#cookie-consent',
+                    '.cookie-banner',
+                    '#gdpr-modal'
+                ];
+                
+                cookieSelectors.forEach(selector => {
+                    const element = document.querySelector(selector);
+                    if (element) {
+                        element.style.display = 'none';
+                    }
+                });
+            }
+        """)
+
     async def scrape(self, url: str, **kwargs) -> ScrapedContent:
         """执行网页抓取
         """
@@ -196,6 +260,9 @@ class PlaywrightScraper(BaseScraper):
         try:
             # 创建新标签页
             page = await self.context.new_page()
+
+            # 浏览器预清理
+            await self._browser_side_cleanup(page)
 
             # 导航到目标页面（等待网络稳定）
             try:
@@ -216,7 +283,9 @@ class PlaywrightScraper(BaseScraper):
             # This excludes: hidden elements, navigation dropdowns, collapsed accordions,
             # inactive tabs, script/style content, SVG code, HTML comments, and metadata
             # Essentially captures what a human would see when viewing the page
-            text = await page.evaluate("document.body.innerText")
+            # text = await page.evaluate("document.body.innerText")
+
+            clean_text = await self._clean_content(html)
 
             # 关闭当前标签页
             await page.close()
@@ -224,10 +293,10 @@ class PlaywrightScraper(BaseScraper):
             return ScrapedContent(
                 url=url,
                 html=html,
-                text=text.strip(),
+                title=title.strip(),
+                text=clean_text.strip(),
                 status_code=status_code,
                 metadata={
-                    "title": title,
                     "headers": response.headers if response else {},
                 },
             )
@@ -235,5 +304,5 @@ class PlaywrightScraper(BaseScraper):
         except Exception as e:
             logger.error(f"抓取失败：{url}: {str(e)}")
             return ScrapedContent(
-                url=url, html="", text="", status_code=0, metadata={"error": str(e)}
+                url=url, html="", text="", title="", status_code=0, metadata={"error": str(e)}
             )
